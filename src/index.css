@@ -1,0 +1,133 @@
+@font-face {
+  font-family: "ChangaOne";
+  src: url("./assets/fonts/ChangaOne-Regular.ttf");
+}
+
+body {
+  margin: 0;
+  font-family: "ChangaOne", cursive;
+}
+
+img {
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-drag: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+}
+
+.game {
+  position: relative;
+  display: inline-block;
+}
+
+.result {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  color: white;
+  -webkit-text-stroke: 3px black;
+}
+
+.info {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 2rem;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  -webkit-text-stroke: 2px black;
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.info .info-row {
+  gap: 0.5rem;
+  display: flex;
+  align-items: center;
+}
+
+.info .svg-heart {
+  width: 2rem;
+  color: red;
+  stroke: black;
+}
+
+.info .svg-gold {
+  width: 2rem;
+  color: gold;
+  stroke: black;
+}
+
+.info .svg-wave {
+  width: 2rem;
+  color: rgb(102, 204, 255);
+  stroke: black;
+}
+
+.info .svg-time {
+  width: 2rem;
+  color: white;
+  stroke: black;
+}
+
+#turrets {
+  position: absolute;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+#turret-upgrade {
+  position: absolute;
+  display: none;
+}
+
+#turret-upgrade .svg-upgrade {
+  background-color: aquamarine;
+}
+
+#turret-upgrade .svg-remove {
+  background-color: red;
+}
+
+#turn-monster {
+  position: absolute;
+  padding: 1rem;
+  border-radius: 50rem;
+  display: flex;
+  gap: 1rem;
+  justify-content: space-evenly;
+  align-items: center;
+  background-color: rgba(0, 255, 0, 0.3);
+}
+
+.ver-line {
+  border-left: 6px solid green;
+  height: 100%;
+}
+
+#infomation {
+  position: absolute;
+  bottom: 0;
+  right: 1rem;
+  font-size: 1.5rem;
+}
+
+#info-hover {
+  font-family: 'Times New Roman', Times, serif;
+  text-align: justify;
+  position: absolute;
+  display: none;
+  color: white;
+  padding: 1rem;
+  font-size: 1.5rem;
+  background-color: hsla(0, 0%, 0%, 0.5);
+}
