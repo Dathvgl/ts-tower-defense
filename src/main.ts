@@ -1,4 +1,19 @@
 import FieldSrc from "./assets/images/field.png";
+import {
+  baseInfoLabel,
+  basePlaceLabel,
+  buttonsLabel,
+  goldsLabel,
+  heartsLabel,
+  hoverInfoLabel,
+  infoLabel,
+  tPosLabel,
+  tRemoveLabel,
+  tUpgradeLabel,
+  timesLabel,
+  turretLabel,
+  wavesLabel,
+} from "./components";
 import { Enemy } from "./lib/enemy";
 import { Path } from "./lib/path";
 import {
@@ -10,6 +25,7 @@ import {
   Turret,
 } from "./lib/turret";
 import { Wave } from "./lib/wave";
+import { Mouse, Player } from "./types";
 
 const canvas = document.querySelector("canvas")!;
 export const ctx = canvas.getContext("2d")!;
@@ -41,29 +57,13 @@ export const canvasProps = {
 export const capitalize = (str: string) =>
   str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 
-export interface Pos {
-  x: number;
-  y: number;
-}
-
-interface Player {
-  heart: number;
-  gold: number;
-  wave: number;
-}
-
 const player: Player = {
   heart: 10,
-  gold: 5000,
+  gold: 35,
   wave: 0,
+  frame: 0,
+  played: false,
 };
-
-interface Mouse extends Pos {
-  hold?: TowerSpec;
-  enemy: boolean;
-  turret: number;
-  turretFeat: boolean;
-}
 
 const mouse: Mouse = {
   x: -1,
@@ -77,27 +77,6 @@ const path = new Path();
 const wave = new Wave();
 const enemys: Enemy[] = [];
 const turrets: Turret[] = [];
-
-const infoLabel = document.querySelector<HTMLDivElement>("#info")!;
-const baseInfoLabel = document.querySelector<HTMLDivElement>("#infomation")!;
-const hoverInfoLabel = document.querySelector<HTMLDivElement>("#info-hover")!;
-
-const heartsLabel = document.querySelector<HTMLDivElement>("#hearts")!;
-const goldsLabel = document.querySelector<HTMLDivElement>("#golds")!;
-const wavesLabel = document.querySelector<HTMLDivElement>("#waves")!;
-const timesLabel = document.querySelector<HTMLDivElement>("#times")!;
-
-const turretLabel = document.querySelector<HTMLDivElement>("#turrets")!;
-
-const tPosLabel = document.querySelector<HTMLDivElement>("#turret-upgrade")!;
-
-const tUpgradeLabel = document.querySelector<HTMLDivElement>(
-  "#turret-upgrade > .svg-upgrade"
-)!;
-
-const tRemoveLabel = document.querySelector<HTMLDivElement>(
-  "#turret-upgrade > .svg-remove"
-)!;
 
 for (const item of TowerSpecies) {
   const image = document.createElement("img");
@@ -125,8 +104,9 @@ field.onload = () => {
   infoLabel.style.width = `${canvasProps.fullWidth}px`;
   heartsLabel.innerText = player.heart.toString();
 
-  turretLabel.style.top = `${r50 * 4 + r50h}px`;
-  turretLabel.style.left = `${canvasProps.offWidth}px`;
+  basePlaceLabel.style.top = `${r50 * 4 + r50h}px`;
+  basePlaceLabel.style.left = `${canvasProps.offWidth}px`;
+  basePlaceLabel.style.width = `${canvas.width - canvasProps.offWidth - rem}px`;
 
   tUpgradeLabel.style.width = `${r50h}px`;
   tUpgradeLabel.style.height = `${r50h}px`;
@@ -138,18 +118,123 @@ field.onload = () => {
 
   baseInfoLabel.style.width = `${canvasProps.fullWidth}px`;
 
-  console.log(turretLabel.style.top);
-  // hoverInfoLabel.style.top = turretLabel.style.top;
-  hoverInfoLabel.style.top = `${r50 * 9}px`;
+  hoverInfoLabel.style.top = `${r50 * 9 + rem}px`;
   hoverInfoLabel.style.right = `${rem}px`;
   hoverInfoLabel.style.padding = `${rem}px`;
   hoverInfoLabel.style.width = `${canvasProps.fullWidth - rem * 2}px`;
 
+  skillInit();
+  buttonInit();
+
+  // Draw field
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(field, 0, 0);
+
   wave.turnShow();
   coinAlt(0);
   waveAlt();
-  animate(0);
+  // animate(0);
 };
+
+function skillInit() {}
+
+function buttonInit() {
+  buttonsLabel[0].onclick = () => {
+    player.played = !player.played;
+    buttonPlayed();
+  };
+
+  buttonsLabel[1].onclick = () => {
+    buttonClear();
+
+    const result = document.querySelector<HTMLDivElement>(".result")!;
+    result.style.display = "none";
+
+    waveAlt();
+    coinAlt(0);
+
+    buttonPlayed();
+
+    timesLabel.innerText = "";
+    buttonsLabel[0].innerText = "Play";
+    heartsLabel.innerText = player.heart.toString();
+
+    // Draw field
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(field, 0, 0);
+  };
+
+  buttonsLabel[2].onclick = () => {
+    localStorage.setItem(
+      "tdwts",
+      JSON.stringify({
+        wave,
+        path,
+        player,
+        enemys,
+        turrets,
+      })
+    );
+  };
+
+  buttonsLabel[3].onclick = () => {
+    const json = localStorage.getItem("tdwts");
+    if (json) {
+      buttonClear();
+      const data = JSON.parse(json);
+
+      enemys.push(...data["enemys"]);
+      turrets.push(...data["turrets"]);
+
+      const playerData = data["player"] as Player;
+      player.heart = playerData.heart;
+      player.gold = playerData.gold;
+      player.wave = playerData.wave;
+      player.frame = playerData.frame;
+      player.played = playerData.played;
+
+      const waveData = data["wave"] as Wave;
+      const pathData = data["path"] as Path;
+
+      wave.copy(waveData);
+      path.copy(pathData);
+    }
+  };
+}
+
+function buttonPlayed() {
+  if (buttonsLabel[0].innerText != "End") {
+    if (player.played && player.heart > 0) {
+      buttonsLabel[0].innerText = "Pause";
+      requestAnimationFrame(animate);
+    } else {
+      if (player.animateId) {
+        buttonsLabel[0].innerText = "Play";
+        cancelAnimationFrame(player.animateId);
+      }
+    }
+  }
+}
+
+function buttonClear() {
+  player.heart = 10;
+  player.gold = 35;
+  player.wave = 0;
+  player.frame = 0;
+  player.played = false;
+
+  mouse.x = -1;
+  mouse.y = -1;
+  mouse.enemy = false;
+  mouse.turret = -1;
+  mouse.turretFeat = false;
+
+  path.clear();
+  wave.clear();
+
+  enemys.length = 0;
+  turrets.length = 0;
+}
 
 function coinAlt(num: number) {
   player.gold += num;
@@ -272,21 +357,24 @@ window.addEventListener("click", (event) => {
 
   if (place.state) {
     // Place turret
-    if (!path.mapPath[place.index].state && player.gold >= 5 && mouse.hold) {
+    if (!path.mapPath[place.index].state && mouse.hold) {
       if (path.altPoint(place.index)) {
         const turret = new Turret({
           index: place.index + 1,
           species: mouse.hold,
         });
-        coinAlt(-turret.buy);
-        path.altPath(place.index, true);
-        turrets.push(turret);
 
-        enemys.forEach((enemy) => {
-          if (enemy.type == "ground") {
-            enemy.altPath(path.resultPath, path.mapPath, path.endPos);
-          }
-        });
+        if (player.gold >= turret.buy) {
+          coinAlt(-turret.buy);
+          path.altPath(place.index, true);
+          turrets.push(turret);
+
+          enemys.forEach((enemy) => {
+            if (enemy.type == "ground") {
+              enemy.altPath(path.resultPath, path.mapPath, path.endPos);
+            }
+          });
+        }
       }
     } else if (mouse.enemy) {
       towerClear();
@@ -311,6 +399,7 @@ window.addEventListener("click", (event) => {
   mouse.turretFeat = false;
 });
 
+const baseFrame = 8;
 const baseMilli = 1000;
 
 const base100 = 100;
@@ -318,13 +407,15 @@ let save100 = base100;
 
 const initWave = 5;
 const baseWave = 10;
-let saveWave = 0;
 
-function animate(millisecond: number) {
+function animate() {
   const animateId = requestAnimationFrame(animate);
+  player.animateId = animateId;
+
+  player.frame += baseFrame;
 
   // Need 100 millisecond
-  const mod100 = millisecond % base100;
+  const mod100 = player.frame % base100;
   const time100 = mod100 <= save100;
   if (time100) {
     save100 = mod100;
@@ -333,16 +424,19 @@ function animate(millisecond: number) {
   }
 
   // Random new turn
-  saveWave = wave.init({
+  wave.init({
     initWave,
     baseWave,
-    waveSecond: millisecond / baseMilli,
-    saveWave,
+    time100,
     path,
     enemys,
     waveAlt,
     timeAlt,
   });
+
+  if (player.frame >= baseMilli) {
+    player.frame -= baseMilli;
+  }
 
   // Clear and draw image
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -499,6 +593,8 @@ function animate(millisecond: number) {
       // Player die
       if (player.heart <= 0) {
         cancelAnimationFrame(animateId);
+        buttonsLabel[0].innerText = "End";
+
         const result = document.querySelector<HTMLDivElement>(".result")!;
         result.style.display = "flex";
       }

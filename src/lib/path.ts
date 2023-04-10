@@ -1,4 +1,5 @@
-import { ctx, Pos, r50, r50h, sizeTile } from "../main";
+import { ctx, r50, r50h, sizeTile } from "../main";
+import { KindPath, MapPath, Pos } from "../types";
 
 const mapPathVertices = [
   "225",
@@ -229,25 +230,6 @@ const mapPathVertices = [
   "210 224",
 ];
 
-export interface MapPath {
-  state: boolean;
-  edges: number[];
-}
-
-interface GroundPath {
-  alt: boolean;
-  pos: DetailPath[];
-}
-
-interface DetailPath extends Pos {
-  index: number;
-}
-
-export interface KindPath {
-  air: Pos;
-  ground: GroundPath;
-}
-
 export class Path {
   startPos: KindPath;
   endPos: KindPath;
@@ -319,6 +301,78 @@ export class Path {
 
     this.readMap();
     this.altMap();
+  }
+
+  clear() {
+    this.border = r50 + r50h;
+
+    const arrayTile = [
+      0,
+      sizeTile,
+      sizeTile ** 2 - 1 - sizeTile,
+      sizeTile ** 2 - 1,
+    ];
+
+    const restless = (sizeTile + 3) * r50;
+    const pytaless = (r50 * Math.SQRT2 - r50h) / 2;
+
+    this.startPos = {
+      air: {
+        x: -pytaless,
+        y: -pytaless,
+      },
+      ground: {
+        alt: false,
+        pos: [
+          {
+            x: r50,
+            y: -r50,
+            index: arrayTile[0],
+          },
+          {
+            x: r50 * 2,
+            y: -r50,
+            index: arrayTile[1],
+          },
+        ],
+      },
+    };
+
+    this.endPos = {
+      air: {
+        x: restless,
+        y: restless,
+      },
+      ground: {
+        alt: false,
+        pos: [
+          {
+            x: sizeTile * r50 - r50h,
+            y: restless,
+            index: arrayTile[2],
+          },
+          {
+            x: (sizeTile + 1) * r50 - r50h,
+            y: restless,
+            index: arrayTile[3],
+          },
+        ],
+      },
+    };
+
+    this.readMap();
+    this.altMap();
+  }
+
+  copy(path: Path) {
+    this.startPos = path.startPos;
+    this.endPos = path.endPos;
+    this.border = path.border;
+    this.hidden = path.hidden;
+    this.numVertices = path.numVertices;
+    this.mapPath = path.mapPath;
+    this.previous = path.previous;
+    this.resultPath = path.resultPath;
   }
 
   draw(state: boolean, { x, y }: Pos) {

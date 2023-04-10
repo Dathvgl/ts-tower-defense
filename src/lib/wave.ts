@@ -6,8 +6,7 @@ import { Path } from "./path";
 interface WaveInit {
   initWave: number;
   baseWave: number;
-  waveSecond: number;
-  saveWave: number;
+  time100: boolean;
   path: Path;
   enemys: Enemy[];
   waveAlt: () => void;
@@ -17,6 +16,7 @@ interface WaveInit {
 export class Wave {
   base: number = 6;
   count: number;
+  second: number = 0;
   turns: EnemySpec[];
   dists: number[] = [];
 
@@ -48,30 +48,60 @@ export class Wave {
     this.turnsLabel.style.height = `${r50}px`;
   }
 
+  clear() {
+    this.turns = [
+      EnemySpecies[0],
+      EnemySpecies[1],
+      EnemySpecies[2],
+      EnemySpecies[3],
+      EnemySpecies[4],
+    ];
+
+    EnemySpecies.forEach(() => {
+      this.dists.push(0);
+    });
+
+    this.turns.forEach((_, index) => {
+      this.dists[index]++;
+    });
+
+    this.count = 0;
+    this.second = 0;
+  }
+
+  copy(wave: Wave) {
+    this.base = wave.base;
+    this.count = wave.count;
+    this.second = wave.second;
+    this.turns = wave.turns;
+    this.dists = wave.dists;
+    this.turnsLabel = wave.turnsLabel;
+  }
+
   init({
     initWave,
     baseWave,
-    waveSecond,
-    saveWave,
+    time100,
     path,
     enemys,
     waveAlt,
     timeAlt,
   }: WaveInit) {
     const waveCount = this.count == 0 ? initWave : baseWave;
-    const waveTime = waveSecond - saveWave >= waveCount;
 
-    const time = waveCount - (waveSecond - saveWave);
-    if (time >= 0) {
+    if (time100) {
+      this.second += 100 / 1000;
+
+      const time = waveCount - this.second;
       timeAlt(Number.parseInt(time.toFixed(0)));
     }
 
-    if (waveTime) {
+    if (waveCount - this.second <= 0) {
+      this.second = 0;
       this.random();
       this.turnShow();
 
       waveAlt();
-      saveWave = waveSecond;
 
       const turn = this.turns[0];
       const type = this.count % 10 != 0 ? "normal" : "boss";
@@ -116,7 +146,6 @@ export class Wave {
         enemys.push(enemy);
       }
     }
-    return saveWave;
   }
 
   random() {

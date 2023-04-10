@@ -1,5 +1,6 @@
 import tower from "../assets/jsons/turret.json";
-import { capitalize, ctx, Pos, r50, r50h, sizeTile } from "../main";
+import { capitalize, ctx, r50, r50h, sizeTile } from "../main";
+import { Pos } from "../types";
 import { Bullet } from "./bullet";
 import { Enemy } from "./enemy";
 

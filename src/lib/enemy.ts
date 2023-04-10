@@ -1,6 +1,7 @@
 import monster from "../assets/jsons/monster.json";
-import { capitalize, ctx, Pos, r50, r50h, sizeTile } from "../main";
-import { KindPath, MapPath, Path } from "./path";
+import { capitalize, ctx, r50, r50h, sizeTile } from "../main";
+import { KindPath, MapPath, Pos } from "../types";
+import { Path } from "./path";
 import { TowerAffect } from "./turret";
 
 export const EnemySpecies = [

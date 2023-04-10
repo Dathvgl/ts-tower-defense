@@ -79,8 +79,48 @@ img {
   stroke: black;
 }
 
-#turrets {
+#basePlace {
   position: absolute;
+  display: flex;
+}
+
+#buttons {
+  margin-left: 1rem;
+  gap: 2rem;
+  flex: 1 1 0%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+#buttons button {
+  cursor: pointer;
+  font-weight: bold;
+  background-color: wheat;
+}
+
+#buttons :last-child {
+  grid-column: span 2 / span 2;
+}
+
+#skills {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
+#skills svg {
+  width: 1.5rem;
+  height: fit-content;
+}
+
+#skills svg:hover {
+  cursor: pointer;
+  padding: 0.2rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+#turrets {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -122,7 +162,7 @@ img {
 }
 
 #info-hover {
-  font-family: 'Times New Roman', Times, serif;
+  font-family: "Times New Roman", Times, serif;
   text-align: justify;
   position: absolute;
   display: none;
